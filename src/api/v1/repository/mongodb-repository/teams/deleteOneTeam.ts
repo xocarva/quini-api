@@ -3,16 +3,11 @@ import { ObjectId } from 'mongodb';
 import { teamsCollection } from './teamsCollection';
 
 export async function deleteOneTeam(id: string): Promise<number> {
-  const deletedCountWhenInvalidId = 0;
-  let _id: ObjectId;
-
-  try {
-    _id = new ObjectId(id); 
-  } catch (error) {
-    return deletedCountWhenInvalidId;
+  if (id && !ObjectId.isValid(id)) {
+    return 0;
   }
 
-  const result = await teamsCollection.deleteOne({ _id });
+  const result = await teamsCollection.deleteOne({ _id: new ObjectId(id) });
 
   if (!result.acknowledged) {
     throw new Error('Error deleting team');
