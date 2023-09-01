@@ -1,8 +1,8 @@
-import * as z from 'zod';
+import z from 'zod';
 import { findOneUser, createOneUser, updateOneUser } from '../repository';
 
 export const userSchema = z.object({
-  name: z.string(),
+  name: z.string().optional(),
   email: z.string(),
   password: z.string().min(8),
 });

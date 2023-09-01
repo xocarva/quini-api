@@ -1,7 +1,7 @@
-import * as z from 'zod';
+import z from 'zod';
 import { createOneTeam, deleteOneTeam, findAllTeams, findOneTeam, updateOneTeam } from '../repository';
 
-const teamSchema = z.object({
+export const teamSchema = z.object({
   name: z.string(),
 });
 
