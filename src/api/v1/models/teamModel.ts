@@ -6,7 +6,7 @@ export const teamSchema = z.object({
 });
 
 const partialTeamSchema = teamSchema.partial();
-const teamWithIdSchema = teamSchema.extend({ id: z.string() });
+export const teamWithIdSchema = teamSchema.extend({ id: z.string() });
 const PartialTeamWithId = teamWithIdSchema.partial();
 
 export type Team = z.infer<typeof teamSchema>;

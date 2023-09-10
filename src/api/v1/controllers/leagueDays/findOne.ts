@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
-import { LeagueDayModel, LeagueDay } from '../../models';
+import { LeagueDayModel, CompleteLeagueDay } from '../../models';
 
-export async function findOne(req: Request, res: Response<{ leagueDay: LeagueDay }>, next: NextFunction) {
+export async function findOne(req: Request, res: Response<{ leagueDay: CompleteLeagueDay }>, next: NextFunction) {
   const { id } = req.params;
 
   try {
-    const leagueDay = await LeagueDayModel.findOne({ id });
+    const leagueDay = await LeagueDayModel.findOneComplete({ id });
 
     if (!leagueDay) {
       res.status(404);
