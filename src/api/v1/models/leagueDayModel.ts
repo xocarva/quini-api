@@ -50,8 +50,24 @@ export type PartialLeagueDayWithId = z.infer<typeof partialLeagueDayWithId>;
 
 
 export class LeagueDayModel {
-  static async findAll(params: PartialLeagueDayWithId): Promise<LeagueDayWithId[]> {
-    return findAllLeagueDays(params);
+  static async findAll(params: PartialLeagueDayWithId): Promise<CompleteLeagueDay[]> {
+    const leagueDaysData = await findAllLeagueDays(params);
+    const teams = await findAllTeams({});
+  
+    return leagueDaysData.map((leagueDayData) => {
+      const rowsData = leagueDayData.rowsData.map((row) => ({
+        position: row.position,
+        homeTeam: {
+          id: row.homeTeamId.toString(),
+          name: teams.find((team) => team.id === row.homeTeamId.toString())?.name || '',
+        },
+        awayTeam: {
+          id: row.awayTeamId.toString(),
+          name: teams.find((team) => team.id === row.awayTeamId.toString())?.name || '',
+        },
+      }));
+      return { ...leagueDayData, rowsData };
+    });
   }
 
   static async findOne(params: PartialLeagueDayWithId): Promise<LeagueDayWithId | null> {
@@ -108,5 +124,4 @@ export class LeagueDayModel {
   }
 }
 
-//TODO return team names in both GET request
 //TODO fix rowsData patch when updating rows partially
