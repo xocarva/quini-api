@@ -1,3 +1,4 @@
+export * from './betModel';
 export * from './leagueDayModel';
-export * from './userModel';
 export * from './teamModel';
+export * from './userModel';

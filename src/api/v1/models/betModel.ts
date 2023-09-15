@@ -1,4 +1,5 @@
 import z from 'zod';
+import { createOneBet, deleteOneBet, findAllBets, findOneBet, updateOneBet } from '../repository';
 
 export const betSchema = z.object({
   leagueDayId: z.string(),
@@ -57,5 +58,3 @@ export class BetModel {
     return PartialBetWithId.parse(bet);
   }
 }
-
-//TODO bet repository
