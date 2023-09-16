@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { UserWithId } from '../models';
 
+
 const { JWT_EXPIRES_AFTER, JWT_PRIVATE_KEY, SALT_ROUNDS } = process.env;
 
 export class AuthService {

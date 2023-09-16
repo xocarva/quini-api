@@ -2,12 +2,11 @@ import z from 'zod';
 import {
   createOneLeagueDay,
   deleteOneLeagueDay,
-  findAllLeagueDays, 
-  findAllTeams,
+  findAllLeagueDays,
   findOneLeagueDay,
   updateOneLeagueDay,
 } from '../repository';
-import { teamWithIdSchema } from './teamModel';
+import { TeamModel, teamWithIdSchema } from './teamModel';
 
 const leagueDaySchema = z.object({
   season: z.string(),
@@ -52,7 +51,7 @@ export type PartialLeagueDayWithId = z.infer<typeof partialLeagueDayWithId>;
 export class LeagueDayModel {
   static async findAll(params: PartialLeagueDayWithId): Promise<CompleteLeagueDay[]> {
     const leagueDaysData = await findAllLeagueDays(params);
-    const teams = await findAllTeams({});
+    const teams = await TeamModel.findAll({});
   
     return leagueDaysData.map((leagueDayData) => {
       const rowsData = leagueDayData.rowsData.map((row) => ({
@@ -76,7 +75,7 @@ export class LeagueDayModel {
 
   static async findOneComplete(params: PartialLeagueDayWithId): Promise<CompleteLeagueDay | null> {
     const leagueDayData = await findOneLeagueDay(params);
-    const teams = await findAllTeams({});
+    const teams = await TeamModel.findAll({});
 
     if (leagueDayData === null) return null;
 
