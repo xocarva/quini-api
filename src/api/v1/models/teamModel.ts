@@ -16,12 +16,12 @@ export type PartialTeam = z.infer<typeof partialTeamSchema>;
 export type TeamWithId = z.infer<typeof teamWithIdSchema>;
 export type PartialTeamWithId = z.infer<typeof PartialTeamWithId>;
 
-const teamsCollection = MongoDBService.getCollection<Team>('teams'); 
-
 export class TeamModel {
+  private static teamsCollection = MongoDBService.getCollection<Team>('teams');
+
   static async findAll(params: PartialTeamWithId): Promise<TeamWithId[]> {
     const { id, ...paramsData } = params;
-    const result = await teamsCollection.find(
+    const result = await this.teamsCollection.find(
       id ? { _id: new ObjectId(id), ...paramsData } : params,
     ).toArray();
   
@@ -40,7 +40,7 @@ export class TeamModel {
       return null;
     }
   
-    const result = await teamsCollection.findOne(id ? { _id: new ObjectId(id), ...paramsData } : params);
+    const result = await this.teamsCollection.findOne(id ? { _id: new ObjectId(id), ...paramsData } : params);
   
     if (result) {
       const { _id, ...teamData } = result;
@@ -51,7 +51,7 @@ export class TeamModel {
   }
 
   static async createOne(team: Team): Promise<TeamWithId> {
-    const result = await teamsCollection.insertOne(team);
+    const result = await this.teamsCollection.insertOne(team);
     if (!result.acknowledged) throw new Error('Error saving team');
   
     return {
@@ -61,7 +61,7 @@ export class TeamModel {
   }
 
   static async updateOne(id: string, teamData: PartialTeam): Promise<number> {
-    const result = await teamsCollection.updateOne(
+    const result = await this.teamsCollection.updateOne(
       { _id: new ObjectId(id) },
       { $set: teamData },
     );
@@ -78,7 +78,7 @@ export class TeamModel {
       return 0;
     }
   
-    const result = await teamsCollection.deleteOne({ _id: new ObjectId(id) });
+    const result = await this.teamsCollection.deleteOne({ _id: new ObjectId(id) });
   
     if (!result.acknowledged) {
       throw new Error('Error deleting team');

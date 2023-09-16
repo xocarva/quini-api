@@ -17,9 +17,10 @@ export type PartialUser = z.infer<typeof partialUserSchema>;
 export type UserWithId = z.infer<typeof userWithIdSchema>;
 export type PartialUserWithId = z.infer<typeof partialUserWithIdSchema>;
 
-const usersCollection = MongoDBService.getCollection<User>('users');
 
 export class UserModel {
+  private static usersCollection = MongoDBService.getCollection<User>('users');
+
   static async findOne(params: PartialUserWithId): Promise<UserWithId | null> {
     const { id, ...paramsData } = params;
 
@@ -27,7 +28,7 @@ export class UserModel {
       return null;
     }
   
-    const result = await usersCollection.findOne(
+    const result = await this.usersCollection.findOne(
       id ? { _id: new ObjectId(id), ...paramsData } : params,
     );
   
@@ -41,7 +42,7 @@ export class UserModel {
   }
 
   static async createOne(user: User): Promise<UserWithId> {
-    const result = await usersCollection.insertOne(user);
+    const result = await this.usersCollection.insertOne(user);
 
     if (!result.acknowledged) {
       throw new Error('Error saving user');
@@ -54,7 +55,7 @@ export class UserModel {
   }
 
   static async updateOne(id: string, userData: PartialUser) {
-    const result = await usersCollection.updateOne({
+    const result = await this.usersCollection.updateOne({
       _id: new ObjectId(id) },
     { $set: userData },
     );
@@ -71,7 +72,7 @@ export class UserModel {
       return 0;
     }
   
-    const result = await usersCollection.deleteOne({ _id: new ObjectId(id) });
+    const result = await this.usersCollection.deleteOne({ _id: new ObjectId(id) });
   
     if (!result.acknowledged) {
       throw new Error('Error deleting user');
