@@ -123,4 +123,6 @@ export class LeagueDayModel {
   }
 }
 
+//TODO remove leagueDays repository
 //TODO fix rowsData patch when updating rows partially
+//TODO refactor findOne and finaAll to return CompleteLeagueDay with only one query
