@@ -4,17 +4,37 @@ import { BetWithId, PartialBetWithId } from '../../../models';
 import { betsCollection } from './betsCollection';
 
 export async function findOneBet(params: PartialBetWithId): Promise<BetWithId | null> {  
-  const { id, ...paramsData } = params;
+  const { id, leagueDayId, userId, ...paramsData } = params;
 
-  if (id && !ObjectId.isValid(id)) {
+  if (
+    (id && !ObjectId.isValid(id))
+    || (leagueDayId && !ObjectId.isValid(leagueDayId))
+    || (userId && !ObjectId.isValid(userId))
+  ) {
     return null;
   }
 
-  const result = await betsCollection.findOne(id ? { _id: new ObjectId(id), ...paramsData } : params);
+  const searchedId = id ? new ObjectId(id) : {};
+  const searchedLeagueDayId = leagueDayId ? new ObjectId(leagueDayId) : {};
+  const searchedUserId = userId ? new ObjectId(userId) : {};
+
+  const result = await betsCollection.findOne(
+    {
+      ...searchedId,
+      ...searchedLeagueDayId,
+      ...searchedUserId,
+      ...paramsData,
+    },
+  );
 
   if (result) {
-    const { _id, ...betData } = result;
-    return { id: _id.toString(), ...betData };
+    const { _id, leagueDayId: league, userId: user, ...betData } = result;
+    return {
+      id: _id.toString(),
+      leagueDayId: league.toString(),
+      userId: user.toString(),
+      ...betData,
+    };
   }
 
   return null;
