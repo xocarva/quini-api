@@ -1,2 +1,2 @@
-export * from './authService';
-export * from './mongoDBService';
+export * from './auth.service';
+export * from './mongoDB.service';

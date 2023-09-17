@@ -1,7 +1,7 @@
 import express from 'express';
 import { authControllers } from '../controllers';
-import { leagueDaysRouter } from './leagueDaysRouter';
-import { teamsRouter } from './teamsRouter';
+import { leagueDaysRouter } from './leagueDays.router';
+import { teamsRouter } from './teams.router';
 import { MessageResponse } from '../../../interfaces';
 
 const router = express.Router();

@@ -1,5 +1,5 @@
-export * from './leagueDayModel';
-export * from './teamModel';
-export * from './userModel';
+export * from './leagueDay.model';
+export * from './team.model';
+export * from './user.model';
 
 //TODO betModel

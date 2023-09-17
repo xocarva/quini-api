@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import z from 'zod';
-import { TeamModel, teamWithIdSchema } from './teamModel';
+import { TeamModel, teamWithIdSchema } from './team.model';
 import { MongoDBService } from '../services';
 import { ObjectId } from 'mongodb';
 
