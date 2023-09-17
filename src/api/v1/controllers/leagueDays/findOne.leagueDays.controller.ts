@@ -9,7 +9,7 @@ export async function findOne(req: Request, res: Response<{ leagueDay: CompleteL
 
     if (!leagueDay) {
       res.status(404);
-      throw new Error('Team not found');
+      throw new Error('League day not found');
     }
 
     res.status(200).send({ leagueDay });
