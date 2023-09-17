@@ -1,16 +1,8 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import z from 'zod';
 import { ObjectId } from 'mongodb';
 import { MongoDBService } from '../services';
-
-export const userSchema = z.object({
-  name: z.string().optional(),
-  email: z.string(),
-  password: z.string().min(8),
-});
-
-const partialUserSchema = userSchema.partial();
-const userWithIdSchema = userSchema.extend({ id: z.string() });
-const partialUserWithIdSchema = userWithIdSchema.partial();
+import { partialUserSchema, partialUserWithIdSchema, userSchema, userWithIdSchema } from '../schemas';
 
 export type User = z.infer<typeof userSchema>;
 export type PartialUser = z.infer<typeof partialUserSchema>;
@@ -33,7 +25,6 @@ export class UserModel {
     );
   
     if (result) {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       const { _id, ...userData } = result;
       return { id: _id.toString(), ...userData };
     }

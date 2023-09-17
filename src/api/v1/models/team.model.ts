@@ -2,14 +2,7 @@
 import z from 'zod';
 import { ObjectId } from 'mongodb';
 import { MongoDBService } from '../services';
-
-export const teamSchema = z.object({
-  name: z.string(),
-});
-
-const partialTeamSchema = teamSchema.partial();
-export const teamWithIdSchema = teamSchema.extend({ id: z.string() });
-const PartialTeamWithId = teamWithIdSchema.partial();
+import { PartialTeamWithId, partialTeamSchema, teamSchema, teamWithIdSchema } from '../schemas';
 
 export type Team = z.infer<typeof teamSchema>;
 export type PartialTeam = z.infer<typeof partialTeamSchema>;

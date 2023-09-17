@@ -1,48 +1,21 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import z from 'zod';
-import { TeamModel, teamWithIdSchema } from './team.model';
-import { MongoDBService } from '../services';
 import { ObjectId } from 'mongodb';
-
-const leagueDaySchema = z.object({
-  season: z.string(),
-  leagueDayNumber: z.coerce.number(),
-  rowsData: z.array(z.object({
-    position: z.number().min(1).max(16),
-    homeTeamId: z.string(),
-    awayTeamId: z.string(),
-    result: z.enum(['0', '1', '2', 'm', 'x']).optional(),
-  })).length(16),
-});
-
-const partialLeagueDaySchema = leagueDaySchema.extend({
-  rowsData: z.array(z.object({
-    position: z.number().min(1).max(16),
-    homeTeamId: z.string(),
-    awayTeamId: z.string(),
-    result: z.enum(['0', '1', '2', 'm', 'x']).optional(),
-  })),
-}).partial();
-
-const leagueDayWithIdSchema = leagueDaySchema.extend({ id: z.string() });
-
-const partialLeagueDayWithId = leagueDayWithIdSchema.partial();
-
-const completeLeagueDaySchema = leagueDayWithIdSchema.extend({
-  rowsData: z.array(z.object({
-    position: z.number().min(1).max(16),
-    homeTeam: teamWithIdSchema,
-    awayTeam: teamWithIdSchema,
-    result: z.enum(['0', '1', '2', 'm', 'x']).optional(),
-  })),
-});
+import { TeamModel } from './team.model';
+import { MongoDBService } from '../services';
+import {
+  completeLeagueDaySchema,
+  leagueDaySchema,
+  leagueDayWithIdSchema,
+  partialLeagueDaySchema,
+  partialLeagueDayWithId,
+} from '../schemas';
 
 export type LeagueDay = z.infer<typeof leagueDaySchema>;
 export type PartialLeagueDay = z.infer<typeof partialLeagueDaySchema>;
 export type LeagueDayWithId = z.infer<typeof leagueDayWithIdSchema>;
 export type CompleteLeagueDay = z.infer<typeof completeLeagueDaySchema>;
 export type PartialLeagueDayWithId = z.infer<typeof partialLeagueDayWithId>;
-
 
 export class LeagueDayModel {
   private static leagueDaysCollection = MongoDBService.getCollection<LeagueDay>('leagueDays');
