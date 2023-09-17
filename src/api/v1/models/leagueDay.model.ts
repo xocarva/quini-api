@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import z from 'zod';
 import { ObjectId } from 'mongodb';
-import { TeamModel } from './team.model';
 import { MongoDBService } from '../services';
 import {
   completeLeagueDaySchema,
@@ -22,31 +21,94 @@ export class LeagueDayModel {
 
   static async findAll(params: PartialLeagueDayWithId): Promise<CompleteLeagueDay[]> {
     const { id, ...paramsData } = params;
-    const result = await this.leagueDaysCollection.find(
-      id ? { _id: new ObjectId(id), ...paramsData } : params,
-    ).toArray();
-  
-    const leagueDaysData  = result.map(leagueDay => {
+    const query = id ? { _id: new ObjectId(id), ...paramsData } : params;
+
+    const pipeline = [
+      { $match: query },
+      {
+        $lookup: {
+          from: 'teams',
+          localField: 'rowsData.homeTeamId',
+          foreignField: '_id',
+          as: 'homeTeams',
+        },
+      },
+      {
+        $lookup: {
+          from: 'teams',
+          localField: 'rowsData.awayTeamId',
+          foreignField: '_id',
+          as: 'awayTeams',
+        },
+      },
+      {
+        $addFields: {
+          rowsData: {
+            $map: {
+              input: '$rowsData',
+              as: 'row',
+              in: {
+                position: '$$row.position',
+                homeTeam: {
+                  id: { $toString: '$$row.homeTeamId' },
+                  name: {
+                    $arrayElemAt: [
+                      {
+                        $map: {
+                          input: {
+                            $filter: {
+                              input: '$homeTeams',
+                              as: 'team',
+                              cond: { $eq: ['$$team._id', '$$row.homeTeamId'] },
+                            },
+                          },
+                          as: 'filteredTeam',
+                          in: '$$filteredTeam.name',
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                },
+                awayTeam: {
+                  id: { $toString: '$$row.awayTeamId' },
+                  name: {
+                    $arrayElemAt: [
+                      {
+                        $map: {
+                          input: {
+                            $filter: {
+                              input: '$awayTeams',
+                              as: 'team', cond: { $eq: ['$$team._id', '$$row.awayTeamId'] },
+                            },
+                          },
+                          as: 'filteredTeam',
+                          in: '$$filteredTeam.name',
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          homeTeams: 0,
+          awayTeams: 0,
+        },
+      },
+    ];
+
+    const result = await this.leagueDaysCollection.aggregate(pipeline).toArray();
+
+    return result.map(leagueDay => {
       const { _id, ...leagueDayData } = leagueDay;
       return { id: _id.toString(), ...leagueDayData };
-    });
-
-    const teams = await TeamModel.findAll({});
-  
-    return leagueDaysData.map((leagueDayData) => {
-      const rowsData = leagueDayData.rowsData.map((row) => ({
-        position: row.position,
-        homeTeam: {
-          id: row.homeTeamId.toString(),
-          name: teams.find((team) => team.id === row.homeTeamId.toString())?.name || '',
-        },
-        awayTeam: {
-          id: row.awayTeamId.toString(),
-          name: teams.find((team) => team.id === row.awayTeamId.toString())?.name || '',
-        },
-      }));
-      return { ...leagueDayData, rowsData };
-    });
+    }) as CompleteLeagueDay[];
   }
 
   static async findOne(params: PartialLeagueDayWithId): Promise<LeagueDayWithId | null> {
@@ -56,7 +118,9 @@ export class LeagueDayModel {
       return null;
     }
   
-    const result = await this.leagueDaysCollection.findOne(id ? { _id: new ObjectId(id), ...paramsData } : params);
+    const result = await this.leagueDaysCollection.findOne(
+      id ? { _id: new ObjectId(id), ...paramsData } : params,
+    );
   
     if (result) {
       const { _id, ...leagueDayData } = result;
@@ -67,31 +131,110 @@ export class LeagueDayModel {
   }
 
   static async findOneComplete(params: PartialLeagueDayWithId): Promise<CompleteLeagueDay | null> {
-    const leagueDayData = await this.findOne(params);
-    const teams = await TeamModel.findAll({});
+    const { id, ...paramsData } = params;
 
-    if (leagueDayData === null) {
+    if (id && !ObjectId.isValid(id)) {
       return null;
     }
 
-    const rowsData = leagueDayData.rowsData.map((row) => ({
-      position: row.position,
-      homeTeam: {
-        id: row.homeTeamId.toString(),
-        name: teams.find((team) => team.id === row.homeTeamId.toString())?.name || '',
-      },
-      awayTeam: {
-        id: row.awayTeamId.toString(),
-        name: teams.find((team) => team.id === row.awayTeamId.toString())?.name || '',
-      },
-    }));
+    const query = id ? { _id: new ObjectId(id), ...paramsData } : params;
 
-    return { ...leagueDayData, rowsData };
+    const pipeline = [
+      { $match: query },
+      {
+        $lookup: {
+          from: 'teams',
+          localField: 'rowsData.homeTeamId',
+          foreignField: '_id',
+          as: 'homeTeams',
+        },
+      },
+      {
+        $lookup: {
+          from: 'teams',
+          localField: 'rowsData.awayTeamId',
+          foreignField: '_id',
+          as: 'awayTeams',
+        },
+      },
+      {
+        $addFields: {
+          rowsData: {
+            $map: {
+              input: '$rowsData',
+              as: 'row',
+              in: {
+                position: '$$row.position',
+                homeTeam: {
+                  id: { $toString: '$$row.homeTeamId' },
+                  name: {
+                    $arrayElemAt: [
+                      {
+                        $map: {
+                          input: {
+                            $filter: {
+                              input: '$homeTeams',
+                              as: 'team',
+                              cond: { $eq: ['$$team._id', '$$row.homeTeamId'] },
+                            },
+                          },
+                          as: 'filteredTeam',
+                          in: '$$filteredTeam.name',
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                },
+                awayTeam: {
+                  id: { $toString: '$$row.awayTeamId' },
+                  name: {
+                    $arrayElemAt: [
+                      {
+                        $map: {
+                          input: {
+                            $filter: {
+                              input: '$awayTeams',
+                              as: 'team',
+                              cond: { $eq: ['$$team._id', '$$row.awayTeamId'] },
+                            },
+                          },
+                          as: 'filteredTeam',
+                          in: '$$filteredTeam.name',
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          homeTeams: 0,
+          awayTeams: 0,
+        },
+      },
+    ];
+
+    const result = await this.leagueDaysCollection.aggregate(pipeline).toArray();
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    const leagueDay = result[0];
+    const { _id, ...leagueDayData } = leagueDay;
+
+    return { id: _id.toString(), ...leagueDayData } as CompleteLeagueDay;
   }
 
   static async createOne(leagueDay: LeagueDay): Promise<LeagueDayWithId> {
     const result = await this.leagueDaysCollection.insertOne(leagueDay);
-    if (!result.acknowledged) throw new Error('Error saving team');
+    if (!result.acknowledged) throw new Error('Error saving league day');
   
     return {
       ...leagueDay,
@@ -144,4 +287,4 @@ export class LeagueDayModel {
 }
 
 //TODO fix rowsData patch when updating rows partially
-//TODO refactor findOneComplete and findAll to return CompleteLeagueDay with only one query
+
