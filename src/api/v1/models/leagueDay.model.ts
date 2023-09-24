@@ -7,14 +7,14 @@ import {
   leagueDaySchema,
   leagueDayWithIdSchema,
   partialLeagueDaySchema,
-  partialLeagueDayWithId,
+  partialLeagueDayWithIdSchema,
 } from '../schemas';
 
 export type LeagueDay = z.infer<typeof leagueDaySchema>;
 export type PartialLeagueDay = z.infer<typeof partialLeagueDaySchema>;
 export type LeagueDayWithId = z.infer<typeof leagueDayWithIdSchema>;
 export type CompleteLeagueDay = z.infer<typeof completeLeagueDaySchema>;
-export type PartialLeagueDayWithId = z.infer<typeof partialLeagueDayWithId>;
+export type PartialLeagueDayWithId = z.infer<typeof partialLeagueDayWithIdSchema>;
 
 export class LeagueDayModel {
   private static leagueDaysCollection = MongoDBService.getCollection<LeagueDay>('leagueDays');
@@ -241,6 +241,6 @@ export class LeagueDayModel {
   }
   
   static validateOnePartialWithId(leagueDayData: any): PartialLeagueDayWithId {
-    return partialLeagueDayWithId.parse(leagueDayData);
+    return partialLeagueDayWithIdSchema.parse(leagueDayData);
   }
 }
