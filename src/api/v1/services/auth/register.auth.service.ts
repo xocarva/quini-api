@@ -7,7 +7,7 @@ export async function register(user: User): Promise<string> {
   let userExists: boolean;
 
   try {
-    userExists = !!await getUser({ email: user.email });
+    userExists = Boolean(await getUser({ email: user.email }));
   
   } catch (error) {
     throw new DatabaseError('Error checking if user exists');

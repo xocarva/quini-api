@@ -1,5 +1,5 @@
 import express from 'express';
-import { authControllers } from '../controllers';
+import { login, register } from '../controllers';
 import { leagueDaysRouter } from './leagueDays.router';
 import { teamsRouter } from './teams.router';
 import * as middlewares from '../../../middlewares';
@@ -13,8 +13,8 @@ router.get<{}, MessageResponse>('/', (_req, res) => {
   });
 });
 
-router.get('/login', authControllers.login);
-router.post('/register', authControllers.register);
+router.get('/login', login);
+router.post('/register', register);
 router.use('/league-days', leagueDaysRouter);
 router.use('/teams', teamsRouter);
 router.use(middlewares.errorHandler);

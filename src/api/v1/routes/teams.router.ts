@@ -1,10 +1,10 @@
 import express from 'express';
-import { teamControllers } from '../controllers';
+import { createTeam, deleteTeam, getTeam, listTeams, updateOne } from '../controllers';
 
 export const teamsRouter = express.Router();
 
-teamsRouter.get('/', teamControllers.findAll);
-teamsRouter.get('/:id', teamControllers.findOne);
-teamsRouter.post('/', teamControllers.createOne);
-teamsRouter.patch('/:id', teamControllers.updateOne);
-teamsRouter.delete('/:id', teamControllers.deleteOne);
+teamsRouter.get('/:id', getTeam);
+teamsRouter.get('/', listTeams);
+teamsRouter.post('/', createTeam);
+teamsRouter.patch('/:id', updateOne);
+teamsRouter.delete('/:id', deleteTeam);

@@ -35,8 +35,15 @@ export async function updateOne(req: Request, res: Response<{ leagueDay: LeagueD
       res.status(200).send({ leagueDay: existingLeagueDay });
       return;
     }
+
+    const updatedLeagueDay = await LeagueDayModel.findOne({ id });
     
-    res.status(200).send({ leagueDay: { ...existingLeagueDay, ...updatedData  } });
+    if (!updatedLeagueDay) {
+      res.status(500);
+      throw new Error('League day was updated but cannot be retrieved');
+    }
+
+    res.status(200).send({ leagueDay: updatedLeagueDay });
 
   } catch (error) {
     next(error);

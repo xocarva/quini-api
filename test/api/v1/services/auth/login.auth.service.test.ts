@@ -1,12 +1,12 @@
-import { login } from '../../../../src/api/v1/services/auth';
-import { getUser } from '../../../../src/api/v1/repository';
-import { generateToken, verifyPassword } from '../../../../src/utils';
-import { DatabaseError, NotFoundError, UnauthorizedError } from '../../../../src/errors';
-import { UserWithId } from '../../../../src/api/v1/schemas';
+import { login } from '../../../../../src/api/v1/services/auth';
+import { getUser } from '../../../../../src/api/v1/repository';
+import { generateToken, verifyPassword } from '../../../../../src/utils';
+import { DatabaseError, NotFoundError, UnauthorizedError } from '../../../../../src/errors';
+import { UserWithId } from '../../../../../src/api/v1/schemas';
 
-jest.mock('../../../../src/api/v1/repository/mongodb/db');
-jest.mock('../../../../src/api/v1/repository');
-jest.mock('../../../../src/utils');
+jest.mock('../../../../../src/api/v1/repository/mongodb/db');
+jest.mock('../../../../../src/api/v1/repository');
+jest.mock('../../../../../src/utils');
 
 describe('login', () => {
   const credentials = { email: 'test@example.com', password: 'password' };

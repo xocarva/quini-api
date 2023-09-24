@@ -1,5 +1,5 @@
-export * as authControllers from './auth';
+export * from './auth';
 export * as leagueDaysControllers from './leagueDays';
-export * as teamControllers from './teams';
+export * from './teams';
 
 //TODO bets controllers

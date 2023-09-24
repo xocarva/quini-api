@@ -1,5 +1,5 @@
 import z from 'zod';
-import { teamWithIdSchema } from './team.schema';
+import { teamWithIdSchema } from './team.schemas';
 import { ObjectId } from 'mongodb';
 
 export const leagueDaySchema = z.object({
@@ -25,10 +25,10 @@ export const partialLeagueDaySchema = leagueDaySchema.extend({
       position: z.number().min(1).max(16),
       homeTeamId: z.string().refine((value) => ObjectId.isValid(value), {
         message: 'homeTeamId not valid',
-      }).transform((value) => new ObjectId(value)),
+      }).transform((value) => new ObjectId(value)).optional(),
       awayTeamId: z.string().refine((value) => ObjectId.isValid(value), {
         message: 'awayTeamId not valid',
-      }).transform((value) => new ObjectId(value)),
+      }).transform((value) => new ObjectId(value)).optional(),
       result: z.enum(['0', '1', '2', 'm', 'x']).optional(),
     })),
 }).partial();

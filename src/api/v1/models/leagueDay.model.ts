@@ -19,11 +19,8 @@ export type PartialLeagueDayWithId = z.infer<typeof partialLeagueDayWithId>;
 export class LeagueDayModel {
   private static leagueDaysCollection = MongoDBService.getCollection<LeagueDay>('leagueDays');
 
-  static async findAll(params: PartialLeagueDayWithId): Promise<CompleteLeagueDay[]> {
-    const { id, ...paramsData } = params;
-    const query = id ? { _id: new ObjectId(id), ...paramsData } : params;
-
-    const pipeline = [
+  private static buildCompleteLeagueDayAggregation(query: any) {
+    return [
       { $match: query },
       {
         $lookup: {
@@ -102,7 +99,13 @@ export class LeagueDayModel {
         },
       },
     ];
+  }
 
+  static async findAll(params: PartialLeagueDayWithId): Promise<CompleteLeagueDay[]> {
+    const { id, ...paramsData } = params;
+    const query = id ? { _id: new ObjectId(id), ...paramsData } : params;
+
+    const pipeline = this.buildCompleteLeagueDayAggregation(query);
     const result = await this.leagueDaysCollection.aggregate(pipeline).toArray();
 
     return result.map(leagueDay => {
@@ -139,87 +142,7 @@ export class LeagueDayModel {
 
     const query = id ? { _id: new ObjectId(id), ...paramsData } : params;
 
-    const pipeline = [
-      { $match: query },
-      {
-        $lookup: {
-          from: 'teams',
-          localField: 'rowsData.homeTeamId',
-          foreignField: '_id',
-          as: 'homeTeams',
-        },
-      },
-      {
-        $lookup: {
-          from: 'teams',
-          localField: 'rowsData.awayTeamId',
-          foreignField: '_id',
-          as: 'awayTeams',
-        },
-      },
-      {
-        $addFields: {
-          rowsData: {
-            $map: {
-              input: '$rowsData',
-              as: 'row',
-              in: {
-                position: '$$row.position',
-                homeTeam: {
-                  id: { $toString: '$$row.homeTeamId' },
-                  name: {
-                    $arrayElemAt: [
-                      {
-                        $map: {
-                          input: {
-                            $filter: {
-                              input: '$homeTeams',
-                              as: 'team',
-                              cond: { $eq: ['$$team._id', '$$row.homeTeamId'] },
-                            },
-                          },
-                          as: 'filteredTeam',
-                          in: '$$filteredTeam.name',
-                        },
-                      },
-                      0,
-                    ],
-                  },
-                },
-                awayTeam: {
-                  id: { $toString: '$$row.awayTeamId' },
-                  name: {
-                    $arrayElemAt: [
-                      {
-                        $map: {
-                          input: {
-                            $filter: {
-                              input: '$awayTeams',
-                              as: 'team',
-                              cond: { $eq: ['$$team._id', '$$row.awayTeamId'] },
-                            },
-                          },
-                          as: 'filteredTeam',
-                          in: '$$filteredTeam.name',
-                        },
-                      },
-                      0,
-                    ],
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      {
-        $project: {
-          homeTeams: 0,
-          awayTeams: 0,
-        },
-      },
-    ];
-
+    const pipeline = this.buildCompleteLeagueDayAggregation(query);
     const result = await this.leagueDaysCollection.aggregate(pipeline).toArray();
 
     if (result.length === 0) {
@@ -243,15 +166,51 @@ export class LeagueDayModel {
   }
 
   static async updateOne(id: string, leagueDayData: PartialLeagueDay): Promise<number> {
+    type UpdatableLeagueDayProperties = {
+      [key: string]: any;
+    } & PartialLeagueDay;
+
+    type Indexable<T> = T & {
+      [key: string]: any;
+    };
+
+    // Initial update query
+    const updateQuery: any = {};
+
+    // For non-array fields of the league day data
+    for (const key in leagueDayData) {
+      if (key !== 'rowsData') {
+        updateQuery[key] = (leagueDayData as UpdatableLeagueDayProperties)[key];
+      }
+    }
+
+    // Handle the rowsData field specially
+    if (leagueDayData.rowsData) {
+      for (const row of leagueDayData.rowsData) {
+        const indexableRow = row as Indexable<typeof row>;
+        for (const key in indexableRow) {
+          if (key !== 'position') {
+            updateQuery[`rowsData.$[element].${key}`] = indexableRow[key];
+          }
+        }
+      }
+    }
+
+    // Execute the update
     const result = await this.leagueDaysCollection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: leagueDayData },
+      { $set: updateQuery },
+      {
+        arrayFilters: leagueDayData.rowsData
+          ? [{ 'element.position': { $in: leagueDayData.rowsData.map(r => r.position) } }]
+          : [],
+      },
     );
 
     if (!result.acknowledged) {
       throw new Error('Error updating league day');
     }
-  
+
     return result.modifiedCount;
   }
 
@@ -285,6 +244,3 @@ export class LeagueDayModel {
     return partialLeagueDayWithId.parse(leagueDayData);
   }
 }
-
-//TODO fix rowsData patch when updating rows partially
-
