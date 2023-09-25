@@ -18,8 +18,8 @@ export const partialLeagueDaySchema = leagueDaySchema.extend({
   rowsData: z.array(
     z.object({
       position: z.number().min(1).max(16),
-      homeTeamId: z.string(),
-      awayTeamId: z.string(),
+      homeTeamId: z.string().optional(),
+      awayTeamId: z.string().optional(),
       result: z.enum(['0', '1', '2', 'm', 'x']).optional(),
     })),
 }).partial();
