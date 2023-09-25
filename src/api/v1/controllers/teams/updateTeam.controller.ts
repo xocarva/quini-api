@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { teamsService } from '../../services';
-import { TeamWithId, teamSchema } from '../../schemas';
+import { TeamWithId, partialTeamSchema } from '../../schemas';
 
 export async function updateTeam(req: Request, res: Response<{ team: TeamWithId }>, next: NextFunction) {
   const { id } = req.params;
   const { body } = req;
 
   try {
-    const updateData = teamSchema.parse(body);
+    const updateData = partialTeamSchema.parse(body);
     const team = await teamsService.updateOne(id, updateData);
 
     res.status(200);
