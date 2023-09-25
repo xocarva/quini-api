@@ -40,6 +40,12 @@ export class ConflictError extends BaseError {
   }
 }
 
+export class UnprocessableContentError extends BaseError {
+  constructor(message = 'Conflict') {
+    super(message, 'ConflictError', 422);
+  }
+}
+
 export class DatabaseError extends BaseError {
   constructor(message = 'Database error') {
     super(message, 'DatabaseError', 500);
