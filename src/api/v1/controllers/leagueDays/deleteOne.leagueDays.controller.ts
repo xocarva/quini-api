@@ -1,28 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
-import { LeagueDayModel } from '../../models';
+import { leagueDaysService } from '../../services';
 
-export async function deleteOne(req: Request, res: Response<{ message: string }>, next: NextFunction) {
+export async function deleteLeagueDay(req: Request, res: Response<{ message: string }>, next: NextFunction) {
   const { id } = req.params;
 
   try {
-    const leagueDay = await LeagueDayModel.findOne({ id });
-
-    if (!leagueDay) {
-      res.status(404);
-      throw new Error('League day not found');
-    }
-
-    const deleted = !!await LeagueDayModel.deleteOne(id);
-
-    if (!deleted) {
-      res.status(500);
-      throw new Error('League day could not be deleted');
-    }
+    await leagueDaysService.deleteOne(id);
 
     res.status(200);
-    res.send({
-      message: `League day ${leagueDay.leagueDayNumber} from season ${leagueDay.season} has been deleted`,
-    });
+    res.send({ message: `League day with id ${id} has been deleted` });
 
   } catch (error) {
     next(error);
