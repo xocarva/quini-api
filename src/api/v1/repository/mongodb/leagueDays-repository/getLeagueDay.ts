@@ -15,8 +15,8 @@ export async function getLeagueDay(params: PartialLeagueDayWithId): Promise<Leag
   );
 
   if (result) {
-    const { _id, ...teamData } = result;
-    return { id: _id.toString(), ...teamData };
+    const { _id, ...leagueDayData } = result;
+    return { id: _id.toString(), ...leagueDayData };
   }
 
   return null;
