@@ -1,13 +1,8 @@
 import z from 'zod';
-import { ObjectId } from 'mongodb';
 
 export const betSchema = z.object({
-  leagueDayId: z.string().refine((value) => ObjectId.isValid(value), {
-    message: 'leagueDayId not valid',
-  }).transform((value) => new ObjectId(value)),
-  userId: z.string().refine((value) => ObjectId.isValid(value), {
-    message: 'userId not valid',
-  }).transform((value) => new ObjectId(value)),
+  leagueDayId: z.string(),
+  userId: z.string(),
   predictions: z.array(
     z.object({
       position: z.number().min(1).max(16),
@@ -18,4 +13,9 @@ export const betSchema = z.object({
 
 export const partialBetSchema = betSchema.partial();
 export const betWithIdSchema = betSchema.extend({ id: z.string() });
-export const PartialBetWithId = betWithIdSchema.partial();
+export const partialBetWithIdSchema = betWithIdSchema.partial();
+
+export type Bet = z.infer<typeof betSchema>;
+export type PartialBet = z.infer<typeof partialBetSchema>;
+export type BetWithId = z.infer<typeof betWithIdSchema>;
+export type PartialBetWithId = z.infer<typeof partialBetWithIdSchema>;
