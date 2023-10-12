@@ -11,7 +11,15 @@ export const betSchema = z.object({
   ).length(16),
 });
 
-export const partialBetSchema = betSchema.partial();
+export const partialBetSchema = betSchema.extend({
+  predictions: z.array(
+    z.object({
+      position: z.number().min(1).max(16),
+      result: z.enum(['0', '1', '2', 'm', 'x']),
+    }),
+  ),
+}).partial();
+
 export const betWithIdSchema = betSchema.extend({ id: z.string() });
 export const partialBetWithIdSchema = betWithIdSchema.partial();
 
