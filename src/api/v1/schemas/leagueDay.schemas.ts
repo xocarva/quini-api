@@ -4,6 +4,7 @@ import { teamWithIdSchema } from './team.schemas';
 export const leagueDaySchema = z.object({
   season: z.string(),
   leagueDayNumber: z.coerce.number(),
+  betsClosed: z.boolean().optional(),
   rowsData: z.array(
     z.object({
       position: z.number().min(1).max(16),
