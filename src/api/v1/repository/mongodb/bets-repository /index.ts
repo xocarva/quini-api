@@ -1,4 +1,5 @@
+export * from './deleteBet';
 export * from './getAllBets';
 export * from './getBet';
-export * from './updateBet';
 export * from './saveBet';
+export * from './updateBet';

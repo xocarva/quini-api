@@ -10,6 +10,7 @@ export async function saveLeagueDay(leagueDay: LeagueDay): Promise<LeagueDayWith
       homeTeamId: new ObjectId(row.homeTeamId),
       awayTeamId: new ObjectId(row.awayTeamId),
     })),
+    betsClosed: false,
   };
 
   const result = await leagueDaysCollection.insertOne(transformedLeagueDay as any);
